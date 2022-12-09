@@ -1,0 +1,13 @@
+{
+  "name": "AOC2022",
+  "version": "0.0.0",
+  "description": "Advent of code 2022",
+  "main": "",
+  "scripts": {},
+  "keywords": [],
+  "author": "Mahdi Aghaei",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.11.12"
+  }
+}
