@@ -1,8 +1,6 @@
-import { readInput } from "../util.js"
+import { readInput } from "../util.js";
 
-const inputArr = readInput()
-  .split("\n")
-  .filter(Boolean);
+const inputArr = readInput().split("\n").filter(Boolean);
 
 // ROCK = 1,
 // PAPER = 2,
@@ -18,7 +16,7 @@ const movePointMap: { [Key: string]: number } = {
   Z: 3,
 };
 
-enum winPointMap {
+enum MatchResult {
   LOSE = 0,
   DRAW = 3,
   WIN = 6,
@@ -33,68 +31,66 @@ const getWinningMove = (move: number) => {
   // SISSORS = 3,
   // 3 < 1 ;; 1 < 2 ;; 2 < 3
 
-  const moveIndex = MOVE_ARR.findIndex(m => m === move);
+  const moveIndex = MOVE_ARR.findIndex((m) => m === move);
 
   const nextIndex = (moveIndex + 1) % MOVE_ARR.length;
 
   return MOVE_ARR[nextIndex];
-}
+};
 
 const getLosingMove = (move: number) => {
   // The losing move for each move is the previos one in the map as explaned
 
-  const moveIndex = MOVE_ARR.findIndex(m => m === move);
+  const moveIndex = MOVE_ARR.findIndex((m) => m === move);
 
-  const nextIndex = (moveIndex - 1);
+  const nextIndex = moveIndex - 1;
 
   if (nextIndex < 0) return MOVE_ARR[MOVE_ARR.length - 1];
   else return MOVE_ARR[nextIndex];
-}
-
-// TODO: Advanced typescript string type in input and then use [number, number] instead of number[]
-const getPointFromMove = (moves: string) => moves.split(" ").map(s => movePointMap[s]);
-
-const getWinPoint = (op: number, pl: number) => {
-  const {
-    LOSE,
-    DRAW,
-    WIN
-  } = winPointMap;
-
-  if (op === pl) return DRAW;
-
-  if (getWinningMove(op) === pl) return WIN;
-  else return LOSE;
 };
 
-const getMatchPoint = (movePoints: number[]) => {
+// TODO: Advanced typescript string type in input and then use [number, number] instead of number[]
+const getPointForEachMove = (moves: string) =>
+  moves.split(" ").map((s) => movePointMap[s]);
+
+const getMatchResult = (op: number, pl: number) => {
+  if (op === pl) {
+    return MatchResult.DRAW;
+  } else if (getWinningMove(op) === pl) {
+    return MatchResult.WIN;
+  } else {
+    return MatchResult.LOSE;
+  }
+};
+
+const calcPointBasedOnPlayerMove = (movePoints: number[]) => {
   const [opponentPoint, playerPoint] = movePoints;
 
-  return getWinPoint(opponentPoint, playerPoint) + playerPoint;
+  return getMatchResult(opponentPoint, playerPoint) + playerPoint;
+};
+
+const calcPointBasedOnActionId = (movePoints: number[]) => {
+  const [opponentPoint, actionId] = movePoints;
+
+  if (actionId === 1 /* X, Lose */)
+    return getLosingMove(opponentPoint) + MatchResult.LOSE;
+  else if (actionId === 2 /* Y, Draw */)
+    return opponentPoint + MatchResult.DRAW;
+  /* Z, Win */ else return getWinningMove(opponentPoint) + MatchResult.WIN;
 };
 
 // --- PART 1 ---
 const answer1 = inputArr
-  .map(getPointFromMove)
-  // .map(([o, p]) => console.log(getWinPoint(o, p)))
-  .map(getMatchPoint)
+  .map(getPointForEachMove)
+  .map(calcPointBasedOnPlayerMove)
   .reduce((p, c) => p + c, 0);
 
-console.log("Part 1:", answer1) // 14531;
+console.log("Part 1:", answer1); // 14531
 
 // --- PART 2 ---
-
-const calcWinningPoint = (movePoints: number[]) => {
-  const [opponentPoint, actionId] = movePoints;
-
-  if (actionId === 1 /* X */) return getLosingMove(opponentPoint) + winPointMap.LOSE;
-  else if (actionId === 2 /* Y */) return opponentPoint + winPointMap.DRAW;
-  else /* Z */ return getWinningMove(opponentPoint) + winPointMap.WIN;
-};
-
 const answer2 = inputArr
-  .map(getPointFromMove)
-  .map(calcWinningPoint)
+  .map(getPointForEachMove)
+  .map(calcPointBasedOnActionId)
   .reduce((p, c) => p + c, 0);
 
 console.log("Part 2:", answer2); // 11258
