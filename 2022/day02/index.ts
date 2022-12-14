@@ -1,6 +1,8 @@
 import { readInput } from "../util.js"
 
-const fileContent = readInput();
+const inputArr = readInput()
+  .split("\n")
+  .filter(Boolean);
 
 // ROCK = 1,
 // PAPER = 2,
@@ -22,6 +24,8 @@ enum winPointMap {
   WIN = 6,
 }
 
+const MOVE_ARR = [1, 2, 3];
+
 const getWinningMove = (move: number) => {
   // The winning move for each move is the next one in the map
   // ROCK = 1,
@@ -29,13 +33,22 @@ const getWinningMove = (move: number) => {
   // SISSORS = 3,
   // 3 < 1 ;; 1 < 2 ;; 2 < 3
 
-  const moveArr = [1, 2, 3];
+  const moveIndex = MOVE_ARR.findIndex(m => m === move);
 
-  const moveIndex = moveArr.findIndex(m => m === move)
+  const nextIndex = (moveIndex + 1) % MOVE_ARR.length;
 
-  const nextIndex = (moveIndex + 1) % moveArr.length;
+  return MOVE_ARR[nextIndex];
+}
 
-  return moveArr[nextIndex];
+const getLosingMove = (move: number) => {
+  // The losing move for each move is the previos one in the map as explaned
+
+  const moveIndex = MOVE_ARR.findIndex(m => m === move);
+
+  const nextIndex = (moveIndex - 1);
+
+  if (nextIndex < 0) return MOVE_ARR[MOVE_ARR.length - 1];
+  else return MOVE_ARR[nextIndex];
 }
 
 // TODO: Advanced typescript string type in input and then use [number, number] instead of number[]
@@ -60,12 +73,28 @@ const getMatchPoint = (movePoints: number[]) => {
   return getWinPoint(opponentPoint, playerPoint) + playerPoint;
 };
 
-const answer1 = fileContent
-  .split("\n")
-  .filter(Boolean)
+// --- PART 1 ---
+const answer1 = inputArr
   .map(getPointFromMove)
   // .map(([o, p]) => console.log(getWinPoint(o, p)))
   .map(getMatchPoint)
   .reduce((p, c) => p + c, 0);
 
-console.log(answer1);
+console.log("Part 1:", answer1) // 14531;
+
+// --- PART 2 ---
+
+const calcWinningPoint = (movePoints: number[]) => {
+  const [opponentPoint, actionId] = movePoints;
+
+  if (actionId === 1 /* X */) return getLosingMove(opponentPoint) + winPointMap.LOSE;
+  else if (actionId === 2 /* Y */) return opponentPoint + winPointMap.DRAW;
+  else /* Z */ return getWinningMove(opponentPoint) + winPointMap.WIN;
+};
+
+const answer2 = inputArr
+  .map(getPointFromMove)
+  .map(calcWinningPoint)
+  .reduce((p, c) => p + c, 0);
+
+console.log("Part 2:", answer2); // 11258
