@@ -1,3 +1,5 @@
+from typing import List, Dict
+
 def readInput(filename = "input.txt") -> str:
     input = open(filename, "r").read()
 
@@ -22,7 +24,17 @@ def construct_arrays(input: str):
 
     return first_list, second_list
 
-def main():
+def array_to_dict(arr: List[int]):
+    d: Dict[int, int] = {}
+
+    for i in range(len(arr)):
+        num = arr[i]
+        d[num] = d.get(num, 0) + 1
+
+    return d
+
+
+def first_part():
     (f, s) = construct_arrays(readInput("test.txt")) # First & Second lists
     f.sort()
     s.sort()
@@ -34,6 +46,16 @@ def main():
     print(total_distance)
     return total_distance
 
+def second_part():
+    (f, s) = construct_arrays(readInput()) # First & Second lists
+    sd = array_to_dict(s) # Second dict
+
+    similarity_score = 0
+    for num in f:
+        similarity_score += num * sd.get(num, 0)
+
+    print(similarity_score)
+    return similarity_score
 
 if __name__ == "__main__":
-    main()
+    second_part()
