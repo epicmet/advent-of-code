@@ -3,7 +3,6 @@ def readInput(filename = "input.txt") -> str:
 
     return input
 
-# Parse it better
 def construct_arrays(input: str):
     first_list = []
     second_list = []
@@ -11,20 +10,15 @@ def construct_arrays(input: str):
     building_num = ""
 
     for ch in input:
-        if ch == " ":
-            if len(building_num) > 0:
-                first_list.append(int(building_num))
-                building_num = ""
-            else:
-                continue
-        elif ch == "\n":
-            if len(building_num) > 0:
-                second_list.append(int(building_num))
-                building_num = ""
-            else:
-                continue
-        else:
+        if ch != " " and ch != "\n":
             building_num += ch
+        else:
+            if len(building_num) <= 0:
+                continue
+            else:
+                target_list = first_list if ch == " " else second_list
+                target_list.append(int(building_num))
+                building_num = ""
 
     return first_list, second_list
 
