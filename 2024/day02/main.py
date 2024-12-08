@@ -4,12 +4,12 @@ def readInput(filename = "input.txt") -> str:
     return file
 
 def is_safe_report(report: str) -> bool:
-    report_arr = report.split(" ")
-    is_asc = int(report_arr[1]) - int(report_arr[0]) > 0
+    report_arr = [int(x) for x in report.split(" ")]
+    is_asc = report_arr[1] - report_arr[0] > 0
 
     for i in range(len(report_arr) - 1): # iter `i` until the one to the last element
-        num = int(report_arr[i])
-        next_num = int(report_arr[i + 1])
+        num = report_arr[i]
+        next_num = report_arr[i + 1]
         diff = next_num - num
 
         if (is_asc and diff < 0) or \
