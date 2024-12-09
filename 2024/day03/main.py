@@ -1,7 +1,10 @@
+from typing import List
+
 class Reader():
     def __init__(self, content: str) -> None:
         self.__content = content
         self.__pointer = 0
+        self.__enabled = True
 
     def __is_pointer_out_of_bound(self) -> bool:
        return self.__pointer >= len(self.__content)
@@ -16,10 +19,11 @@ class Reader():
     def unread_char(self):
         self.__pointer = max(0, self.__pointer - 1)
 
-    def read_until(self, needle: str):
+    def read_until(self, needles: List[str]):
         ch = self.read_char()
-        while ch != None and ch != needle:
+        while ch != None and not ch in needles:
             ch = self.read_char()
+        return ch
 
     def expect(self, ch: str) -> bool:
         if self.__is_pointer_out_of_bound():
@@ -49,18 +53,26 @@ class Reader():
         except ValueError:
             return None
 
+    def expect_peek_seq(self, seq: str):
+        for ch in seq:
+            exp = self.expect_peek(ch)
+            if not exp:
+                return False
+        return True
+
     def __iter__(self):
         return self
 
-    def __next__(self):
+    def __next__(self) -> tuple[int, int] | None:
         if self.__is_pointer_out_of_bound():
             raise StopIteration
 
-        self.read_until("m")
+        starting_seq = self.read_until(["m", "d"])
+        if starting_seq == "m":
+            read_seq = self.expect_peek_seq("ul(")
+            if not read_seq:
+                return None
 
-        if self.expect_peek("u") and \
-            self.expect_peek("l") and \
-            self.expect_peek("("):
             f_int = self.read_int()
             if not self.expect_peek(","):
                 return None
@@ -71,7 +83,13 @@ class Reader():
             if not self.expect_peek(")"):
                 return None
 
-            return f_int, s_int
+            if self.__enabled:
+                return f_int, s_int
+            else:
+                return None
+        elif starting_seq == "d":
+            pass
+
 
         return None
 
@@ -91,8 +109,6 @@ def part_one():
             f, s = res
             total_mul += f * s
     print(f"Part one: {total_mul}")
-
-
 
 if __name__ == "__main__":
     part_one()
